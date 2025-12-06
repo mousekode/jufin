@@ -156,20 +156,17 @@ public class jufin_main extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
-                "ID", "Judul"
+                "ID", "Judul", "Bulan"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -185,6 +182,7 @@ public class jufin_main extends javax.swing.JFrame {
         labelDeskripsi1.setText("Selected");
 
         fieldNamaJurnal1.setEditable(false);
+        fieldNamaJurnal1.setBackground(new java.awt.Color(204, 204, 255));
         fieldNamaJurnal1.setToolTipText("Nama dari jurnal yang ingin dibuat");
         fieldNamaJurnal1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
