@@ -156,20 +156,17 @@ public class jufin_main extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
-                "ID", "Judul"
+                "ID", "Judul", "Bulan"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -185,6 +182,7 @@ public class jufin_main extends javax.swing.JFrame {
         labelDeskripsi1.setText("Selected");
 
         fieldNamaJurnal1.setEditable(false);
+        fieldNamaJurnal1.setBackground(new java.awt.Color(204, 204, 255));
         fieldNamaJurnal1.setToolTipText("Nama dari jurnal yang ingin dibuat");
         fieldNamaJurnal1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -264,14 +262,16 @@ public class jufin_main extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(subtitleBuatJurnal)
                         .addGap(183, 183, 183)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(subtitleBuatJurnal1)
-                            .addComponent(title)))
+                        .addComponent(subtitleBuatJurnal1))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(panelBuatJurnal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(12, 12, 12))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(title)
+                .addGap(349, 349, 349))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
