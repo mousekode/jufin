@@ -257,7 +257,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="fieldJudulJurnal1" min="-2" pref="70" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnOpenJurnal" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnBukaJurnal" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnLaporan" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="88" max="-2" attributes="0"/>
@@ -275,7 +275,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="labelDeskripsi1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnOpenJurnal" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnBukaJurnal" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnLaporan" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnHapusFDB" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="fieldJudulJurnal1" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
@@ -313,10 +313,13 @@
             <Property name="text" type="java.lang.String" value="Selected"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="btnOpenJurnal">
+        <Component class="javax.swing.JButton" name="btnBukaJurnal">
           <Properties>
             <Property name="text" type="java.lang.String" value="Buka"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBukaJurnalActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnLaporan">
           <Properties>

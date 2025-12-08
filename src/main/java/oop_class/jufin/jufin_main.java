@@ -69,6 +69,12 @@ public class jufin_main extends javax.swing.JFrame {
                 System.out.println("Terjadi Error di loadData)()");
         }
     }
+    
+    public void run_jurnalPage() {
+        JFrame jPage = new jufin_jurnal();
+        jPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        jPage.setVisible(true);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -94,7 +100,7 @@ public class jufin_main extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         dbTable = new javax.swing.JTable();
         labelDeskripsi1 = new javax.swing.JLabel();
-        btnOpenJurnal = new javax.swing.JButton();
+        btnBukaJurnal = new javax.swing.JButton();
         btnLaporan = new javax.swing.JButton();
         btnHapusFDB = new javax.swing.JButton();
         fieldJudulJurnal1 = new javax.swing.JTextField();
@@ -218,7 +224,12 @@ public class jufin_main extends javax.swing.JFrame {
 
         labelDeskripsi1.setText("Selected");
 
-        btnOpenJurnal.setText("Buka");
+        btnBukaJurnal.setText("Buka");
+        btnBukaJurnal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBukaJurnalActionPerformed(evt);
+            }
+        });
 
         btnLaporan.setText("Laporan");
         btnLaporan.addActionListener(new java.awt.event.ActionListener() {
@@ -253,7 +264,7 @@ public class jufin_main extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fieldJudulJurnal1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnOpenJurnal)
+                        .addComponent(btnBukaJurnal)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnLaporan)
                         .addGap(88, 88, 88)
@@ -267,7 +278,7 @@ public class jufin_main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(panelDatabaseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelDeskripsi1)
-                    .addComponent(btnOpenJurnal)
+                    .addComponent(btnBukaJurnal)
                     .addComponent(btnLaporan)
                     .addComponent(btnHapusFDB)
                     .addComponent(fieldJudulJurnal1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -337,6 +348,10 @@ public class jufin_main extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnHapusFDBActionPerformed
 
+    private void btnBukaJurnalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBukaJurnalActionPerformed
+        run_jurnalPage();
+    }//GEN-LAST:event_btnBukaJurnalActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -373,9 +388,9 @@ public class jufin_main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBukaJurnal;
     private javax.swing.JButton btnHapusFDB;
     private javax.swing.JButton btnLaporan;
-    private javax.swing.JButton btnOpenJurnal;
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnTambahJurnal;
     private javax.swing.JComboBox<String> comboBulan;
