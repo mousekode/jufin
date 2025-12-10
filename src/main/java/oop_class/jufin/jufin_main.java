@@ -12,7 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import sistem_kasir.DBConnect;
+import java.sql.PreparedStatement;
 
 /**
  *
@@ -131,6 +131,7 @@ public class jufin_main extends javax.swing.JFrame {
 
         fieldDeskripsi.setToolTipText("Nama dari jurnal yang ingin dibuat");
         fieldDeskripsi.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        fieldDeskripsi.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
 
         btnTambahJurnal.setText("Tambahkan");
         btnTambahJurnal.addActionListener(new java.awt.event.ActionListener() {
@@ -332,7 +333,25 @@ public class jufin_main extends javax.swing.JFrame {
 
     // Tombol untuk menambahkan jurnal ke database
     private void btnTambahJurnalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahJurnalActionPerformed
-        // TODO add your handling code here:
+        String judul = fieldJudulJurnal.getText();
+        int selectedBulan = comboBulan.getSelectedIndex();
+        String deskripsi = fieldDeskripsi.getText();
+        
+        try {
+            Connection DB = DBConnect.getConnect();
+            String QUERY = "INSERT INTO journals VALUES(?, ?, ?, ?)";
+            PreparedStatement STATE = DB.prepareStatement(QUERY);
+            STATE.setString(1, "DEFAULT");
+            STATE.setString(2, judul);
+            STATE.setString(3, deskripsi);
+            STATE.setInt(4, selectedBulan);
+            STATE.executeUpdate();
+            STATE.close();
+        } catch (SQLException e) {
+            System.out.println("Terjadi Error di TambahAction");
+        } finally {
+            loadData();
+        }
     }//GEN-LAST:event_btnTambahJurnalActionPerformed
 
     // Kosongi seluruh field pada panelBuatJurnal

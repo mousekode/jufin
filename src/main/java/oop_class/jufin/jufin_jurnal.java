@@ -13,8 +13,9 @@ public class jufin_jurnal extends javax.swing.JFrame {
     /**
      * Creates new form jufin_jurnal
      */
-    public jufin_jurnal() {
+    public jufin_jurnal(int journal_id) {
         initComponents();
+        
     }
 
     /**
