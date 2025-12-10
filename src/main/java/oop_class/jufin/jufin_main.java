@@ -349,6 +349,7 @@ public class jufin_main extends javax.swing.JFrame {
         } catch (SQLException err) {
             System.err.println("Err in TambahJurnal");
         } finally {
+            // To be added: menambahkan autoOpen
             loadData();
         }
     }//GEN-LAST:event_btnTambahJurnalActionPerformed
