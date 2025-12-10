@@ -71,7 +71,7 @@ public class jufin_main extends javax.swing.JFrame {
     }
     
     public void run_jurnalPage() {
-        JFrame jPage = new jufin_jurnal();
+        JFrame jPage = new jufin_jurnal(misc.PLACEHOLDER.getValue());
         jPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jPage.setVisible(true);
     }
@@ -334,21 +334,20 @@ public class jufin_main extends javax.swing.JFrame {
     // Tombol untuk menambahkan jurnal ke database
     private void btnTambahJurnalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahJurnalActionPerformed
         String judul = fieldJudulJurnal.getText();
-        int selectedBulan = comboBulan.getSelectedIndex();
+        int selectedBulan = comboBulan.getSelectedIndex() + 1; // +1 karena objek berupa array
         String deskripsi = fieldDeskripsi.getText();
         
         try {
             Connection DB = DBConnect.getConnect();
-            String QUERY = "INSERT INTO journals VALUES(?, ?, ?, ?)";
+            String QUERY = "INSERT INTO journals(journal_name, journal_desc, created_in) VALUES(?, ?, ?)";
             PreparedStatement STATE = DB.prepareStatement(QUERY);
-            STATE.setString(1, "DEFAULT");
-            STATE.setString(2, judul);
-            STATE.setString(3, deskripsi);
-            STATE.setInt(4, selectedBulan);
+            STATE.setString(1, judul);
+            STATE.setString(2, deskripsi);
+            STATE.setInt(3, selectedBulan);
             STATE.executeUpdate();
             STATE.close();
-        } catch (SQLException e) {
-            System.out.println("Terjadi Error di TambahAction");
+        } catch (SQLException err) {
+            System.err.println("Err in TambahJurnal");
         } finally {
             loadData();
         }
