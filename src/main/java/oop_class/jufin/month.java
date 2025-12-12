@@ -39,4 +39,13 @@ public enum month {
     public String toString() {
         return name();
     }
+    
+     public static String getNameFromValue(int value) {
+        for (month m : month.values()) {
+            if (m.getValue() == value) {
+                return m.name(); // returns "JANUARY", "FEBRUARY", etc.
+            }
+        }
+        return null; // or throw exception if not found
+    }
 }

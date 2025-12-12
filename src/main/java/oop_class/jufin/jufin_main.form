@@ -258,13 +258,11 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="labelDeskripsi1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="fieldJudulJurnal1" min="-2" pref="70" max="-2" attributes="0"/>
+                          <Component id="fieldSelected" min="-2" pref="70" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btnBukaJurnal" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnLaporan" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="88" max="-2" attributes="0"/>
-                          <Component id="btnHapusFDB" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="171" max="-2" attributes="0"/>
+                          <Component id="btnHapusFDB" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jScrollPane1" alignment="0" min="-2" pref="456" max="-2" attributes="0"/>
                   </Group>
@@ -279,9 +277,8 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="labelDeskripsi1" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnBukaJurnal" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnLaporan" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btnHapusFDB" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="fieldJudulJurnal1" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
+                      <Component id="fieldSelected" alignment="3" min="-2" pref="24" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Component id="jScrollPane1" min="-2" pref="229" max="-2" attributes="0"/>
@@ -308,6 +305,9 @@
                   </Table>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="dbTableMouseClicked"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -324,14 +324,6 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBukaJurnalActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btnLaporan">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Laporan"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLaporanActionPerformed"/>
-          </Events>
-        </Component>
         <Component class="javax.swing.JButton" name="btnHapusFDB">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -346,7 +338,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnHapusFDBActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JTextField" name="fieldJudulJurnal1">
+        <Component class="javax.swing.JTextField" name="fieldSelected">
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">

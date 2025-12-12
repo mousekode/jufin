@@ -4,11 +4,23 @@
  */
 package oop_class.jufin;
 
+import java.awt.Color;
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+
 /**
  *
  * @author Akbar
  */
 public class jufin_jurnal extends javax.swing.JFrame {
+    // Agar bisa dipakai lagi
+    private int JOURNAL_ID;
 
     /**
      * Creates new form jufin_jurnal
@@ -16,6 +28,29 @@ public class jufin_jurnal extends javax.swing.JFrame {
     public jufin_jurnal(int journal_id) {
         initComponents();
         
+        JOURNAL_ID = journal_id;
+        
+        // Mengganti title, subtitle dan deskripsi
+        try {
+            Connection DB = DBConnect.getConnect();
+            String QUERY = "SELECT journal_name, created_in, journal_desc FROM journals WHERE journal_id = ?";
+            PreparedStatement STATE = DB.prepareStatement(QUERY);
+            STATE.setInt(1, journal_id);
+            
+            ResultSet RS = STATE.executeQuery();
+            
+            jurnalTitle.setText(RS.getString("journal_name"));
+            
+            jurnalMonth.setText(month.getNameFromValue(RS.getInt("created_in")));
+            
+            jurnalDesc.setText("journal_desc");
+            
+            
+            STATE.close();
+            RS.close();
+        } catch (SQLException err) {
+            System.err.print("Err di constructor");
+        }
     }
 
     /**
@@ -67,10 +102,10 @@ public class jufin_jurnal extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jurnalTable);
 
         jurnalTitle.setFont(new java.awt.Font("Cascadia Mono", 1, 28)); // NOI18N
-        jurnalTitle.setText("Lorem Ipsum");
+        jurnalTitle.setText("Title");
 
         jurnalMonth.setFont(new java.awt.Font("Cascadia Mono", 1, 18)); // NOI18N
-        jurnalMonth.setText("January");
+        jurnalMonth.setText("Subtitle");
 
         btnBack.setText("Kembali");
         btnBack.addActionListener(new java.awt.event.ActionListener() {

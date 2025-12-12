@@ -70,8 +70,8 @@ public class jufin_main extends javax.swing.JFrame {
         }
     }
     
-    public void run_jurnalPage() {
-        JFrame jPage = new jufin_jurnal(misc.PLACEHOLDER.getValue());
+    public void run_jurnalPage(int journal_id) {
+        JFrame jPage = new jufin_jurnal(journal_id);
         jPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jPage.setVisible(true);
     }
@@ -101,9 +101,8 @@ public class jufin_main extends javax.swing.JFrame {
         dbTable = new javax.swing.JTable();
         labelDeskripsi1 = new javax.swing.JLabel();
         btnBukaJurnal = new javax.swing.JButton();
-        btnLaporan = new javax.swing.JButton();
         btnHapusFDB = new javax.swing.JButton();
-        fieldJudulJurnal1 = new javax.swing.JTextField();
+        fieldSelected = new javax.swing.JTextField();
         subtitleBuatJurnal1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -221,6 +220,11 @@ public class jufin_main extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        dbTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dbTableMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(dbTable);
 
         labelDeskripsi1.setText("Selected");
@@ -229,13 +233,6 @@ public class jufin_main extends javax.swing.JFrame {
         btnBukaJurnal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBukaJurnalActionPerformed(evt);
-            }
-        });
-
-        btnLaporan.setText("Laporan");
-        btnLaporan.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLaporanActionPerformed(evt);
             }
         });
 
@@ -248,10 +245,10 @@ public class jufin_main extends javax.swing.JFrame {
             }
         });
 
-        fieldJudulJurnal1.setEditable(false);
-        fieldJudulJurnal1.setBackground(new java.awt.Color(204, 204, 255));
-        fieldJudulJurnal1.setToolTipText("Nama dari jurnal yang ingin dibuat");
-        fieldJudulJurnal1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        fieldSelected.setEditable(false);
+        fieldSelected.setBackground(new java.awt.Color(204, 204, 255));
+        fieldSelected.setToolTipText("Nama dari jurnal yang ingin dibuat");
+        fieldSelected.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         javax.swing.GroupLayout panelDatabaseLayout = new javax.swing.GroupLayout(panelDatabase);
         panelDatabase.setLayout(panelDatabaseLayout);
@@ -263,12 +260,10 @@ public class jufin_main extends javax.swing.JFrame {
                     .addGroup(panelDatabaseLayout.createSequentialGroup()
                         .addComponent(labelDeskripsi1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fieldJudulJurnal1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fieldSelected, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBukaJurnal)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnLaporan)
-                        .addGap(88, 88, 88)
+                        .addGap(171, 171, 171)
                         .addComponent(btnHapusFDB))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 456, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -280,9 +275,8 @@ public class jufin_main extends javax.swing.JFrame {
                 .addGroup(panelDatabaseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelDeskripsi1)
                     .addComponent(btnBukaJurnal)
-                    .addComponent(btnLaporan)
                     .addComponent(btnHapusFDB)
-                    .addComponent(fieldJudulJurnal1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(fieldSelected, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -359,17 +353,34 @@ public class jufin_main extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnResetActionPerformed
 
-    private void btnLaporanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLaporanActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnLaporanActionPerformed
-
     private void btnHapusFDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusFDBActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnHapusFDBActionPerformed
 
     private void btnBukaJurnalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBukaJurnalActionPerformed
-        run_jurnalPage();
+        // Mengecek jika tidak ada yang di select
+        int selectedRow = dbTable.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+        
+        Object obj_id = dbTable.getValueAt(selectedRow, dbTable.getColumnModel().getColumnIndex("ID"));
+        int id = Integer.parseInt((String) obj_id);
+        run_jurnalPage(id);        
     }//GEN-LAST:event_btnBukaJurnalActionPerformed
+
+    private void dbTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dbTableMouseClicked
+        // Mengecek jika tidak ada yang di select
+        int selectedRow = dbTable.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+        
+        // Mendapatkan nilai dari kolom ID
+        Object obj_id = dbTable.getValueAt(selectedRow, dbTable.getColumnModel().getColumnIndex("ID"));
+        String id = (String) obj_id;
+        fieldSelected.setText(id);
+    }//GEN-LAST:event_dbTableMouseClicked
 
     /**
      * @param args the command line arguments
@@ -409,14 +420,13 @@ public class jufin_main extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBukaJurnal;
     private javax.swing.JButton btnHapusFDB;
-    private javax.swing.JButton btnLaporan;
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnTambahJurnal;
     private javax.swing.JComboBox<String> comboBulan;
     private javax.swing.JTable dbTable;
     private javax.swing.JTextField fieldDeskripsi;
     private javax.swing.JTextField fieldJudulJurnal;
-    private javax.swing.JTextField fieldJudulJurnal1;
+    private javax.swing.JTextField fieldSelected;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelBulan;
     private javax.swing.JLabel labelDeskripsi;
