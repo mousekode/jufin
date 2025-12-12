@@ -39,6 +39,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
             
             ResultSet RS = STATE.executeQuery();
             
+            // Need fixing right here
             jurnalTitle.setText(RS.getString("journal_name"));
             
             jurnalMonth.setText(month.getNameFromValue(RS.getInt("created_in")));
