@@ -21,14 +21,35 @@ import java.sql.PreparedStatement;
 public class jufin_jurnal extends javax.swing.JFrame {
     // Agar bisa dipakai lagi
     private int JOURNAL_ID;
+    private DefaultTableModel dbModel;
+    private kategori kategori = new kategori();
 
     /**
-     * Creates new form jufin_jurnal
+     * Mengambil informasi dari database berdasarkan argumen yang di passing
      */
     public jufin_jurnal(int journal_id) {
         initComponents();
         
+        // Inisialisasi JOURNAL_ID
         JOURNAL_ID = journal_id;
+        
+        // Menambahkan JComboBox ke jurnalTable
+        JComboBox<String> comboKategori = new JComboBox<>(kategori.list);
+        
+        // Define dbModel
+        dbModel = new DefaultTableModel();
+        
+        // Define jurnalTable as dbModel
+        jurnalTable.setModel(dbModel);
+        dbModel.addColumn("Tanggal");
+        dbModel.addColumn("Kategori");
+        dbModel.addColumn("Ref");
+        dbModel.addColumn("Debit");
+        dbModel.addColumn("Kredit");
+        dbModel.addColumn("Deskripsi");
+        
+        TableColumn kolomKategori = jurnalTable.getColumnModel().getColumn(1);
+        kolomKategori.setCellEditor(new DefaultCellEditor(comboKategori));
         
         // Mengganti title, subtitle dan deskripsi
         try {
@@ -50,9 +71,47 @@ public class jufin_jurnal extends javax.swing.JFrame {
             RS.close();
         } catch (SQLException err) {
             System.err.print("Err di constructor");
+        } 
+        finally {
+            loadData();
         }
     }
+    
+    // Fungsi ini memuat data dari database (db_jufin) ke tabel (var jurnalTable)
+    public void loadData() {
+        // Menghapus data
+        dbModel.getDataVector().removeAllElements();
+        
+        // Info bahwa data telah kosong
+        dbModel.fireTableDataChanged();
+        
+        // Memastikan nilai yang diambil dari db_jufin berdasarkan JOURNAL_ID yang tepat
+        try {
+            Connection DB = DBConnect.getConnect();
+            String QUERY = "SELECT * FROM `transactions` WHERE journal_id = ?";
+            PreparedStatement STATE = DB.prepareStatement(QUERY);
+            STATE.setInt(1, JOURNAL_ID);
+            ResultSet RS = STATE.executeQuery();
+            while(RS.next()){
+                // lakukan penelusuran baris
+                Object[] obj = new Object[6];
+                obj[0] = RS.getInt("date");
+                obj[1] = RS.getString("category");
+                obj[2] = RS.getInt("transaction_id");
+                if (RS.getDouble("amount") >= 0) {
+                obj[3] = RS.getDouble("amount");
+                } else obj[4] = RS.getDouble("amount") * (-1);
+                obj[5] = RS.getString("description");
+                dbModel.addRow(obj);
+            }
 
+            RS.close();
+            STATE.close();
+            
+        } catch(SQLException e) {
+                System.out.println("Terjadi Error di loadData)()");
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -77,17 +136,17 @@ public class jufin_jurnal extends javax.swing.JFrame {
 
         jurnalTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null}
             },
             new String [] {
-                "Tanggal", "Akun", "Kategori", "Ref", "Debit", "Kredit", "Deskripsi"
+                "Tanggal", "Kategori", "Ref", "Nilai", "Deskripsi"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Double.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                true, true, true, false, true, true, true
+                true, true, false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -107,6 +166,11 @@ public class jufin_jurnal extends javax.swing.JFrame {
         jurnalMonth.setText("Subtitle");
 
         btnAdd.setText("Tambah");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("Hapus");
 
@@ -191,6 +255,10 @@ public class jufin_jurnal extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        dbModel.addRow(new Object[]{null, null, null, null, null, null});
+    }//GEN-LAST:event_btnAddActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
