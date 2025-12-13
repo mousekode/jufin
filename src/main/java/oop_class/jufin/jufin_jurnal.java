@@ -39,13 +39,12 @@ public class jufin_jurnal extends javax.swing.JFrame {
             
             ResultSet RS = STATE.executeQuery();
             
-            // Need fixing right here
-            jurnalTitle.setText(RS.getString("journal_name"));
-            
-            jurnalMonth.setText(month.getNameFromValue(RS.getInt("created_in")));
-            
-            jurnalDesc.setText("journal_desc");
-            
+            // Bagian perlu optimisasi
+            while (RS.next()) {
+                jurnalTitle.setText(RS.getString("journal_name"));
+                jurnalMonth.setText(month.getNameFromValue(RS.getInt("created_in")));
+                jurnalDesc.setText(RS.getString("journal_desc"));
+            }
             
             STATE.close();
             RS.close();
@@ -67,7 +66,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
         jurnalTable = new javax.swing.JTable();
         jurnalTitle = new javax.swing.JLabel();
         jurnalMonth = new javax.swing.JLabel();
-        btnBack = new javax.swing.JButton();
         btnAdd = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnPrint = new javax.swing.JButton();
@@ -108,13 +106,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
         jurnalMonth.setFont(new java.awt.Font("Cascadia Mono", 1, 18)); // NOI18N
         jurnalMonth.setText("Subtitle");
 
-        btnBack.setText("Kembali");
-        btnBack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnBackActionPerformed(evt);
-            }
-        });
-
         btnAdd.setText("Tambah");
 
         btnDelete.setText("Hapus");
@@ -139,7 +130,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
         debugPrompt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jurnalDesc.setFont(new java.awt.Font("Cascadia Mono", 0, 16)); // NOI18N
-        jurnalDesc.setText("Description");
+        jurnalDesc.setText("Nothing");
         jurnalDesc.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jurnalDesc.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -166,17 +157,14 @@ public class jufin_jurnal extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jurnalTitle)
                             .addComponent(jurnalMonth))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnBack)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jurnalTitle)
-                    .addComponent(btnBack))
+                .addComponent(jurnalTitle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jurnalMonth)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -196,10 +184,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnBackActionPerformed
-
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnPrintActionPerformed
@@ -211,7 +195,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
-    private javax.swing.JButton btnBack;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
