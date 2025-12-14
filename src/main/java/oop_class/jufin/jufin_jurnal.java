@@ -153,7 +153,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
     public void deleteData(int transaction_id) {
         try {
             Connection DB = DBConnect.getConnect();
-            String QUERY = "DELETE FROM transaction WHERE transaction_id = ?";
+            String QUERY = "DELETE FROM transactions WHERE transaction_id = ?";
             PreparedStatement PSTMT = DB.prepareStatement(QUERY);
             
             PSTMT.setInt(1, transaction_id);
@@ -308,8 +308,13 @@ public class jufin_jurnal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnPrintActionPerformed
 
+    // Todo:
+    // * Membuat data baru dengan insertData()
+    // * Jika mengubah nilai data, update data yang diganti menggunakan updateData() berdasarkan Ref dari data
+    // * Menghapus data dari database jika referensi data tidak ada pada jurnal tapi ada pada database
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        
+        Connection DB = DBConnect.getConnect();
+        String Pull = "SELECT * FROM transaction";
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
