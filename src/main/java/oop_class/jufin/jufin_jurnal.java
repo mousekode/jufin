@@ -109,7 +109,58 @@ public class jufin_jurnal extends javax.swing.JFrame {
             STATE.close();
             
         } catch(SQLException e) {
-                System.out.println("Terjadi Error di loadData)()");
+                System.out.println("Terjadi Error di loadData()");
+        }
+    }
+    
+    public void insertData(String category, int date, double amount, String desc) {
+        try {
+            Connection DB = DBConnect.getConnect();
+            String QUERY = "INSERT INTO transactions(journal_id, category, date, amount, description) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement preparePush = DB.prepareStatement(QUERY);
+            preparePush.setInt(1, JOURNAL_ID);
+            preparePush.setString(2, category);
+            preparePush.setInt(3, date);
+            preparePush.setDouble(4, amount);
+            preparePush.setString(5, desc);
+            
+            preparePush.executeUpdate();
+            preparePush.close();
+        } catch (SQLException err) {
+            System.err.println("Error: mencoba menambahkan data");
+        }
+    }
+    
+    public void updateData(int transaction_id, String category, int date, double amount, String desc) {
+        try {
+            Connection DB = DBConnect.getConnect();
+            String QUERY = "UPDATE transactions SET journal_id = ?, category = ?, date = ?, amount = ?, description = ? WHERE transaction_id = ?";
+            PreparedStatement preparePush = DB.prepareStatement(QUERY);
+            
+            preparePush.setInt(1, JOURNAL_ID);
+            preparePush.setString(2, category);
+            preparePush.setInt(3, date);
+            preparePush.setDouble(4, amount);
+            preparePush.setString(5, desc);
+            
+            preparePush.executeUpdate();
+            preparePush.close();
+        } catch (SQLException err) {
+            System.err.println("Error: mencoba update data");
+        }
+    }
+    
+    public void deleteData(int transaction_id) {
+        try {
+            Connection DB = DBConnect.getConnect();
+            String QUERY = "DELETE FROM transaction WHERE transaction_id = ?";
+            PreparedStatement PSTMT = DB.prepareStatement(QUERY);
+            
+            PSTMT.setInt(1, transaction_id);
+            PSTMT.executeUpdate();
+            PSTMT.close();
+        } catch (SQLException err) {
+            System.err.println("Error: mencoba menghapus data");
         }
     }
     /**
@@ -258,7 +309,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPrintActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
