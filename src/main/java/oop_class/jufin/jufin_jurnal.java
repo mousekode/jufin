@@ -88,7 +88,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
         // Memastikan nilai yang diambil dari db_jufin berdasarkan JOURNAL_ID yang tepat
         try {
             Connection DB = DBConnect.getConnect();
-            String QUERY = "SELECT * FROM `transactions` WHERE journal_id = ?";
+            String QUERY = "SELECT * FROM transactions WHERE journal_id = ? ORDER BY transactions.date ASC";
             PreparedStatement STATE = DB.prepareStatement(QUERY);
             STATE.setInt(1, JOURNAL_ID);
             ResultSet RS = STATE.executeQuery();
@@ -173,6 +173,11 @@ public class jufin_jurnal extends javax.swing.JFrame {
         });
 
         btnDelete.setText("Hapus");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnPrint.setText("Cetak");
         btnPrint.addActionListener(new java.awt.event.ActionListener() {
@@ -259,6 +264,16 @@ public class jufin_jurnal extends javax.swing.JFrame {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         dbModel.addRow(new Object[]{null, null, null, null, null, null});
     }//GEN-LAST:event_btnAddActionPerformed
+
+    // Fungsi tombol hapus: menghapus baris dari jurnalTable
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int selectedRow = jurnalTable.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+        
+        dbModel.removeRow(selectedRow);
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

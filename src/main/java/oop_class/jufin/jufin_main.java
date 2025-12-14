@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -327,11 +329,16 @@ public class jufin_main extends javax.swing.JFrame {
 
     // Tombol untuk menambahkan jurnal ke database
     private void btnTambahJurnalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahJurnalActionPerformed
-        String judul = fieldJudulJurnal.getText();
-        int selectedBulan = comboBulan.getSelectedIndex() + 1; // +1 karena objek berupa array
-        String deskripsi = fieldDeskripsi.getText();
-        
         try {
+            // cek jika field kosong
+            if (fieldJudulJurnal.getText().trim().isEmpty()) {
+                throw new Exception("Tidak bisa lanjut dengan field kosong");
+            }
+            String judul = fieldJudulJurnal.getText();
+            int selectedBulan = comboBulan.getSelectedIndex() + 1; // +1 karena objek berupa array
+            String deskripsi = fieldDeskripsi.getText();
+            
+            // Lanjut ke penambahan ke database
             Connection DB = DBConnect.getConnect();
             String QUERY = "INSERT INTO journals(journal_name, journal_desc, created_in) VALUES(?, ?, ?)";
             PreparedStatement STATE = DB.prepareStatement(QUERY);
@@ -342,6 +349,9 @@ public class jufin_main extends javax.swing.JFrame {
             STATE.close();
         } catch (SQLException err) {
             System.err.println("Err in TambahJurnal");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } finally {
             // To be added: menambahkan autoOpen
             loadData();
@@ -350,11 +360,45 @@ public class jufin_main extends javax.swing.JFrame {
 
     // Kosongi seluruh field pada panelBuatJurnal
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
-        // TODO add your handling code here:
+        fieldJudulJurnal.setText("");
+        fieldDeskripsi.setText("");
+        comboBulan.setSelectedIndex(0);
     }//GEN-LAST:event_btnResetActionPerformed
 
+    // Fungsi tombol hapus: menghapus jurnal dari database dan juga isi dari jurnal
+    // dengan mencari transaksi yang terkait dengan jurnal menggunakan JOURNAL_ID
     private void btnHapusFDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusFDBActionPerformed
-        // TODO add your handling code here:
+        // Untuk mencari ID berdasarkan baris dari dbTable yang dipilih
+        int selectedJournal;
+        int selectedRow = dbTable.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+        
+        Object obj_id = dbTable.getValueAt(selectedRow, dbTable.getColumnModel().getColumnIndex("ID"));
+        selectedJournal = Integer.parseInt((String) obj_id);
+        
+        // Lanjutkan hasil pencarian untuk digunakan sebagai index penghapus
+        try {
+            Connection DB = DBConnect.getConnect();
+            String queryTransactions = "DELETE FROM transactions WHERE journal_id = ?";
+            String queryJournals = "DELETE FROM journals WHERE journal_id = ?";
+            PreparedStatement delTrans = DB.prepareStatement(queryTransactions);
+            PreparedStatement delJour = DB.prepareStatement(queryJournals);
+            
+            delTrans.setInt(1, selectedJournal);
+            delJour.setInt(1, selectedJournal);
+            
+            delTrans.executeUpdate();
+            delJour.executeUpdate();
+            
+            delTrans.close();
+            delJour.close();
+        } catch (SQLException err) {
+            System.err.println("Err in btnHapusFDB");
+        } finally {
+            loadData();
+        }
     }//GEN-LAST:event_btnHapusFDBActionPerformed
 
     private void btnBukaJurnalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBukaJurnalActionPerformed
