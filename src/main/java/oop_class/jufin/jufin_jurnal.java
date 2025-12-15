@@ -330,6 +330,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
                 db_amount = rsPull.getDouble("amount");
                 db_desc = rsPull.getString("description");
                 
+                int findMissing;
                 for (int row = 0; row < jurnalTable.getRowCount(); row++) {
                     int tb_transaction_id, tb_date;
                     String tb_category, tb_desc;
@@ -341,8 +342,31 @@ public class jufin_jurnal extends javax.swing.JFrame {
                     tb_amount = (double) jurnalTable.getValueAt(row, 3);
                     tb_desc = (String) jurnalTable.getValueAt(row, 4);
                     
+                    
+                    // Update jika sudah ada tapi data berubah
+                    if (tb_transaction_id == db_transaction_id) {
+                        updateData(tb_transaction_id, tb_category, tb_date, tb_amount, tb_desc);
+                    }
+                    
+                    // Hapus dari DB jika yang ada pada DB tidak ada pada tabel
+                    if (row == jurnalTable.getRowCount() && db_transaction_id != tb_transaction_id) {
+                        deleteData(db_transaction_id);
+                    }
+                    
+                    // Tambahkan jika yang ada pada tabel tidak ada pada DB
+                    PreparedStatement tempState = DB.prepareStatement("SELECT * FROM transactions WHERE transaction_id = ?");
+                    tempState.setInt(1, tb_transaction_id);
+                    ResultSet tempRS = tempState.executeQuery();
+                    if (!tempRS.next()) {
+                        insertData(tb_category, tb_date, tb_amount, tb_desc);
+                    }
+                    tempState.close();
+                    tempRS.close();
                 }
             }
+            
+            statePull.close();
+            rsPull.close();
         } catch (SQLException err) {
             System.err.println("Error: mencoba menyimpan data");
         }
