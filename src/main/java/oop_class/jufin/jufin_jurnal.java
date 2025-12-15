@@ -313,8 +313,39 @@ public class jufin_jurnal extends javax.swing.JFrame {
     // * Jika mengubah nilai data, update data yang diganti menggunakan updateData() berdasarkan Ref dari data
     // * Menghapus data dari database jika referensi data tidak ada pada jurnal tapi ada pada database
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        Connection DB = DBConnect.getConnect();
-        String Pull = "SELECT * FROM transaction";
+        try {
+            Connection DB = DBConnect.getConnect();
+            String qPull = "SELECT * FROM transaction";
+            Statement statePull = DB.createStatement();
+            ResultSet rsPull = statePull.executeQuery(qPull);
+            while(rsPull.next()) {
+                int db_transaction_id, db_journal_id, db_date;
+                String db_category, db_desc;
+                double db_amount;
+                
+                db_transaction_id = rsPull.getInt("transaction_id");
+                db_journal_id = rsPull.getInt("journal_id");
+                db_category = rsPull.getString("category");
+                db_date = rsPull.getInt("date");
+                db_amount = rsPull.getDouble("amount");
+                db_desc = rsPull.getString("description");
+                
+                for (int row = 0; row < jurnalTable.getRowCount(); row++) {
+                    int tb_transaction_id, tb_date;
+                    String tb_category, tb_desc;
+                    double tb_amount;
+                    
+                    tb_date = (int) jurnalTable.getValueAt(row, 0);
+                    tb_category = (String) jurnalTable.getValueAt(row, 1);
+                    tb_transaction_id = (int) jurnalTable.getValueAt(row, 2);
+                    tb_amount = (double) jurnalTable.getValueAt(row, 3);
+                    tb_desc = (String) jurnalTable.getValueAt(row, 4);
+                    
+                }
+            }
+        } catch (SQLException err) {
+            System.err.println("Error: mencoba menyimpan data");
+        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
