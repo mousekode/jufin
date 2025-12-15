@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -180,24 +182,23 @@ public class jufin_jurnal extends javax.swing.JFrame {
         btnDelete = new javax.swing.JButton();
         btnPrint = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
-        debugPrompt = new javax.swing.JTextField();
         jurnalDesc = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jurnalTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null}
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Tanggal", "Kategori", "Ref", "Nilai", "Deskripsi"
+                "Tanggal", "Kategori", "Ref", "Debit", "Kredit", "Deskripsi"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Object.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                true, true, false, true, true
+                true, true, false, true, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -208,6 +209,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        jurnalTable.setToolTipText("");
         jScrollPane1.setViewportView(jurnalTable);
 
         jurnalTitle.setFont(new java.awt.Font("Cascadia Mono", 1, 28)); // NOI18N
@@ -244,11 +246,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
             }
         });
 
-        debugPrompt.setEditable(false);
-        debugPrompt.setBackground(new java.awt.Color(204, 204, 255));
-        debugPrompt.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        debugPrompt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
         jurnalDesc.setFont(new java.awt.Font("Cascadia Mono", 0, 16)); // NOI18N
         jurnalDesc.setText("Nothing");
         jurnalDesc.setVerticalAlignment(javax.swing.SwingConstants.TOP);
@@ -267,9 +264,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
                         .addComponent(btnAdd)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnDelete)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(debugPrompt)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnSave)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnPrint))
@@ -294,8 +289,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
                     .addComponent(btnAdd)
                     .addComponent(btnDelete)
                     .addComponent(btnPrint)
-                    .addComponent(btnSave)
-                    .addComponent(debugPrompt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnSave))
                 .addGap(5, 5, 5)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
                 .addContainerGap())
@@ -315,7 +309,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         try {
             Connection DB = DBConnect.getConnect();
-            String qPull = "SELECT * FROM transaction";
+            String qPull = "SELECT * FROM transactions";
             Statement statePull = DB.createStatement();
             ResultSet rsPull = statePull.executeQuery(qPull);
             while(rsPull.next()) {
@@ -334,13 +328,50 @@ public class jufin_jurnal extends javax.swing.JFrame {
                 for (int row = 0; row < jurnalTable.getRowCount(); row++) {
                     int tb_transaction_id, tb_date;
                     String tb_category, tb_desc;
-                    double tb_amount;
+                    double tb_amount = 0;
                     
                     tb_date = (int) jurnalTable.getValueAt(row, 0);
                     tb_category = (String) jurnalTable.getValueAt(row, 1);
                     tb_transaction_id = (int) jurnalTable.getValueAt(row, 2);
-                    tb_amount = (double) jurnalTable.getValueAt(row, 3);
-                    tb_desc = (String) jurnalTable.getValueAt(row, 4);
+
+                    // Error handling
+                    if (jurnalTable.getValueAt(row, 1) == null) {
+                        throw new Exception ("Error: kategori tidak boleh kosong");
+                    }
+                    
+                    if (jurnalTable.getValueAt(row, 1) == kategori.list[0]) {
+                        if (jurnalTable.getValueAt(row, 3) == null) {
+                            throw new Exception("Error: debit dari kategori ini tidak boleh kosong");
+                        }
+                        
+                        if (jurnalTable.getValueAt(row, 4) != null && (double) jurnalTable.getValueAt(row, 4) > 0) {
+                            throw new Exception("Error: jangan menambahkan kredit untuk kategori debit");
+                        }
+                        
+                        if ((double) jurnalTable.getValueAt(row, 3) < 0) {
+                            throw new Exception("Error: debit tidak boleh < 0");
+                        }
+                        
+                        tb_amount = (double) jurnalTable.getValueAt(row, 3);
+                    } else {
+                        if (jurnalTable.getValueAt(row, 4) == null) {
+                            throw new Exception("Error: kredit dari kategori ini tidak boleh kosong");
+                        }
+                        
+                        if (jurnalTable.getValueAt(row, 3) != null && (double) jurnalTable.getValueAt(row, 3) > 0) {
+                            throw new Exception("Error: jangan menambahkan debit untuk kategori kredit");
+                        }
+                        
+                        if ((double) jurnalTable.getValueAt(row, 4) < 0) {
+                            throw new Exception("Error: kredit tidak boleh < 0");
+                        }
+                        
+                        tb_amount = (double) jurnalTable.getValueAt(row, 4);
+                    }
+                    
+                    System.out.println("Can't run here");
+                    
+                    tb_desc = (String) jurnalTable.getValueAt(row, 5);
                     
                     
                     // Update jika sudah ada tapi data berubah
@@ -360,6 +391,9 @@ public class jufin_jurnal extends javax.swing.JFrame {
                     if (!tempRS.next()) {
                         insertData(tb_category, tb_date, tb_amount, tb_desc);
                     }
+                    
+
+
                     tempState.close();
                     tempRS.close();
                 }
@@ -369,6 +403,9 @@ public class jufin_jurnal extends javax.swing.JFrame {
             rsPull.close();
         } catch (SQLException err) {
             System.err.println("Error: mencoba menyimpan data");
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+            return;
         }
     }//GEN-LAST:event_btnSaveActionPerformed
 
@@ -392,7 +429,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
-    private javax.swing.JTextField debugPrompt;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel jurnalDesc;
     private javax.swing.JLabel jurnalMonth;
