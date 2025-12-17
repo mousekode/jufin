@@ -25,6 +25,8 @@ public class jufin_jurnal extends javax.swing.JFrame {
     private int JOURNAL_ID;
     private DefaultTableModel dbModel;
     private kategori kategori = new kategori();
+    private boolean isUpdateMode = false;
+    private Object toUpdate = -1;
 
     /**
      * Mengambil informasi dari database berdasarkan argumen yang di passing
@@ -32,7 +34,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
     public jufin_jurnal(int journal_id) {
         initComponents();
         
-        // Inisialisasi JOURNAL_ID
+        // Inisialisasi global
         JOURNAL_ID = journal_id;
         
         // Menambahkan JComboBox ke jurnalTable
@@ -80,6 +82,9 @@ public class jufin_jurnal extends javax.swing.JFrame {
     
     // Fungsi ini memuat data dari database (db_jufin) ke tabel (var jurnalTable)
     public void loadData() {
+        // Clear shi
+        clearShi();
+        
         // Menghapus data
         dbModel.getDataVector().removeAllElements();
         
@@ -95,25 +100,30 @@ public class jufin_jurnal extends javax.swing.JFrame {
             ResultSet RS = STATE.executeQuery();
             while(RS.next()){
                 // lakukan penelusuran baris
-                Object[] obj = new Object[6];
+                Object[] obj = new Object[5];
                 obj[0] = RS.getInt("date");
                 obj[1] = RS.getString("category");
                 obj[2] = RS.getInt("transaction_id");
                 obj[3] = RS.getDouble("amount");
-                obj[5] = RS.getString("description");
+                obj[4] = RS.getString("description");
                 dbModel.addRow(obj);
             }
 
             RS.close();
             STATE.close();
             
-        } catch(SQLException e) {
-                System.out.println("Terjadi Error di loadData()");
+        } catch(SQLException err) {
+            System.out.println("Terjadi Error di loadData()");
+            System.out.println("Error code: " + err.getErrorCode());
+            System.out.println("SQL state: " + err.getSQLState());
+            System.out.println("Message: " + err.getMessage());
+            err.printStackTrace(); // optional, shows full stack trace
         }
     }
     
-    public void insertData(Object category, Object date, Object amount, String desc) {
+    public void insertData(Object category, Object date, Object amount, Object desc) {
         try {
+            System.out.println("Update mode is false");
             Connection DB = DBConnect.getConnect();
             String QUERY = "INSERT INTO transactions(journal_id, category, date, amount, description) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement preparePush = DB.prepareStatement(QUERY);
@@ -122,11 +132,17 @@ public class jufin_jurnal extends javax.swing.JFrame {
             preparePush.setObject(3, date);
             preparePush.setObject(4, amount);
             preparePush.setObject(5, desc);
-            
             preparePush.executeUpdate();
             preparePush.close();
+            
         } catch (SQLException err) {
             System.err.println("Error: mencoba menambahkan data");
+            System.out.println("Error code: " + err.getErrorCode());
+            System.out.println("SQL state: " + err.getSQLState());
+            System.out.println("Message: " + err.getMessage());
+            err.printStackTrace(); // optional, shows full stack trace
+        } finally {
+            loadData();
         }
     }
     
@@ -135,47 +151,58 @@ public class jufin_jurnal extends javax.swing.JFrame {
             Connection DB = DBConnect.getConnect();
             String QUERY = "UPDATE transactions SET journal_id = ?, category = ?, date = ?, amount = ?, description = ? WHERE transaction_id = ?";
             PreparedStatement preparePush = DB.prepareStatement(QUERY);
-            
+
+            preparePush.setObject(6, transaction_id);
             preparePush.setObject(1, JOURNAL_ID);
             preparePush.setObject(2, category);
             preparePush.setObject(3, date);
             preparePush.setObject(4, amount);
             preparePush.setObject(5, desc);
-            
             preparePush.executeUpdate();
             preparePush.close();
+            
         } catch (SQLException err) {
-            System.err.println("Error: mencoba update data");
+            System.err.println("Error: mencoba mengupdate data");
+            System.out.println("Error code: " + err.getErrorCode());
+            System.out.println("SQL state: " + err.getSQLState());
+            System.out.println("Message: " + err.getMessage());
+            err.printStackTrace(); // optional, shows full stack trace
+        } finally {
+            loadData();
         }
     }
     
     public void deleteData(Object transaction_id) {
         try {
             Connection DB = DBConnect.getConnect();
-            String FIND = "SELECT * FROM transactions WHERE transaction_id = ?";
-            PreparedStatement PSTMT = DB.prepareStatement(FIND);
-            PSTMT.setObject(1, transaction_id);
-            ResultSet RS = PSTMT.executeQuery();
-            
-            if (!RS.next()) {
-                return;
-            }
-            
-            RS.close();
             String QUERY = "DELETE FROM transactions WHERE transaction_id = ?";
-            PSTMT = DB.prepareStatement(QUERY);
+            PreparedStatement PSTMT = DB.prepareStatement(QUERY);
             
             PSTMT.setObject(1, transaction_id);
             PSTMT.executeUpdate();
             PSTMT.close();
         } catch (SQLException err) {
             System.err.println("Error: mencoba menghapus data");
+        } finally {
+            loadData();
         }
+    }
+    
+    // Membersihkan query dan seleksi
+    public void clearShi() {
+        jurnalTable.clearSelection();
+        btnAdd.setText("Tambah");
+        jurnalTable.clearSelection();
+        spinDate.setValue(1);
+        labelUpd.setText("");
+        comboKategori.setSelectedIndex(0);
+        fieldNilai.setText("");
+        fieldDesc.setText("");
     }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * regenerated by the jForm Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -197,6 +224,8 @@ public class jufin_jurnal extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        labelUpd = new javax.swing.JLabel();
+        btnReset = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -208,22 +237,20 @@ public class jufin_jurnal extends javax.swing.JFrame {
                 "Tanggal", "Kategori", "Ref", "Nilai", "Deskripsi"
             }
         ) {
-            Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.String.class
-            };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
             };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
         jurnalTable.setToolTipText("");
+        jurnalTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jurnalTableMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jurnalTable);
 
         jurnalTitle.setFont(new java.awt.Font("Cascadia Mono", 1, 28)); // NOI18N
@@ -240,6 +267,11 @@ public class jufin_jurnal extends javax.swing.JFrame {
         });
 
         btnDelete.setText("Hapus");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnPrint.setText("Cetak");
         btnPrint.addActionListener(new java.awt.event.ActionListener() {
@@ -258,12 +290,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
 
         spinDate.setModel(new javax.swing.SpinnerNumberModel(1, 1, 30, 1));
 
-        fieldDesc.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fieldDescActionPerformed(evt);
-            }
-        });
-
         jLabel1.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
         jLabel1.setText("Tanggal");
 
@@ -276,6 +302,15 @@ public class jufin_jurnal extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
         jLabel4.setText("Deskripsi");
 
+        labelUpd.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
+
+        btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -283,39 +318,45 @@ public class jufin_jurnal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jurnalDesc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jurnalTitle)
-                            .addComponent(jurnalMonth))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jurnalDesc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jurnalTitle)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(spinDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel1))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(comboKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(fieldNilai, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(fieldDesc, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnAdd)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btnReset)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnDelete)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnPrint))
+                                    .addComponent(labelUpd))))
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(spinDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(comboKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(fieldNilai, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(fieldDesc)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnAdd)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnDelete)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnPrint))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(0, 0, Short.MAX_VALUE)))))
-                .addContainerGap())
+                        .addComponent(jurnalMonth)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -331,7 +372,8 @@ public class jufin_jurnal extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(labelUpd))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd)
@@ -340,9 +382,10 @@ public class jufin_jurnal extends javax.swing.JFrame {
                     .addComponent(fieldNilai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(comboKategori, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(spinDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fieldDesc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
+                    .addComponent(fieldDesc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnReset))
+                .addGap(38, 38, 38)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -359,28 +402,62 @@ public class jufin_jurnal extends javax.swing.JFrame {
             if (fieldNilai.getText() == null || fieldNilai.getText().trim().isEmpty()) {
                 throw new Exception("Error: nilai tidak boleh kosong");
             }
-
-            // Memasukkan nilai ke tabel
-            Object[] tbObj = {spinDate.getValue(), comboKategori.getSelectedItem(), JOURNAL_ID, fieldNilai.getText(), fieldDesc.getText()};
-            dbModel.addRow(tbObj);
             
-            // Memasukkan nilai ke database
+            Object[] tbObj = {spinDate.getValue(), comboKategori.getSelectedItem(), "#", 0, fieldDesc.getText()};
             
+            if (comboKategori.getSelectedIndex() == 0) {
+                tbObj[3] = (String) fieldNilai.getText();
+            } else tbObj[3] = "-" + (String) fieldNilai.getText();
+            
+            int selectedRow = jurnalTable.getSelectedRow();
+            if (selectedRow == -1) {
+                insertData(tbObj[1], tbObj[0], tbObj[3], tbObj[4]);
+            } else updateData(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Ref")), tbObj[1], tbObj[0], tbObj[3], tbObj[4]);
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
             return;
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
-    private void fieldDescActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldDescActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_fieldDescActionPerformed
+    private void jurnalTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jurnalTableMouseClicked
+        int selectedRow = jurnalTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        
+        // Mengisi field yang tertera
+        spinDate.setValue(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Tanggal")));
+        comboKategori.setSelectedItem(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Kategori")));
+        if (comboKategori.getSelectedItem() != kategori.list[0]) {
+            fieldNilai.setText(String.valueOf(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Nilai"))).replace("-", ""));
+        } else fieldNilai.setText(String.valueOf(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Nilai"))));
+        fieldDesc.setText(String.valueOf(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Deskripsi"))));
+        
+        // Mengubah status tombol
+        btnAdd.setText("Update");
+        
+        // Memberi petunjuk ID yang dipilih
+        labelUpd.setText("Selected ref: " + String.valueOf(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Ref"))));
+    }//GEN-LAST:event_jurnalTableMouseClicked
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        clearShi();
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int selectedRow = jurnalTable.getSelectedRow();
+        if (selectedRow == -1) {
+            System.err.println("Error: tidak ada yang dipilih");
+            return;
+        }
+        
+        deleteData(jurnalTable.getValueAt(selectedRow, jurnalTable.getColumnModel().getColumnIndex("Ref")));
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnPrint;
+    private javax.swing.JButton btnReset;
     private javax.swing.JComboBox<String> comboKategori;
     private javax.swing.JTextField fieldDesc;
     private javax.swing.JTextField fieldNilai;
@@ -393,6 +470,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
     private javax.swing.JLabel jurnalMonth;
     private javax.swing.JTable jurnalTable;
     private javax.swing.JLabel jurnalTitle;
+    private javax.swing.JLabel labelUpd;
     private javax.swing.JSpinner spinDate;
     // End of variables declaration//GEN-END:variables
 }
