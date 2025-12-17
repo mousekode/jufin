@@ -46,8 +46,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
         dbModel.addColumn("Tanggal");
         dbModel.addColumn("Kategori");
         dbModel.addColumn("Ref");
-        dbModel.addColumn("Debit");
-        dbModel.addColumn("Kredit");
+        dbModel.addColumn("Nilai");
         dbModel.addColumn("Deskripsi");
         
         TableColumn kolomKategori = jurnalTable.getColumnModel().getColumn(1);
@@ -100,9 +99,7 @@ public class jufin_jurnal extends javax.swing.JFrame {
                 obj[0] = RS.getInt("date");
                 obj[1] = RS.getString("category");
                 obj[2] = RS.getInt("transaction_id");
-                if (RS.getDouble("amount") >= 0) {
                 obj[3] = RS.getDouble("amount");
-                } else obj[4] = RS.getDouble("amount") * (-1);
                 obj[5] = RS.getString("description");
                 dbModel.addRow(obj);
             }
@@ -115,16 +112,16 @@ public class jufin_jurnal extends javax.swing.JFrame {
         }
     }
     
-    public void insertData(String category, int date, double amount, String desc) {
+    public void insertData(Object category, Object date, Object amount, String desc) {
         try {
             Connection DB = DBConnect.getConnect();
             String QUERY = "INSERT INTO transactions(journal_id, category, date, amount, description) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement preparePush = DB.prepareStatement(QUERY);
             preparePush.setInt(1, JOURNAL_ID);
-            preparePush.setString(2, category);
-            preparePush.setInt(3, date);
-            preparePush.setDouble(4, amount);
-            preparePush.setString(5, desc);
+            preparePush.setObject(2, category);
+            preparePush.setObject(3, date);
+            preparePush.setObject(4, amount);
+            preparePush.setObject(5, desc);
             
             preparePush.executeUpdate();
             preparePush.close();
@@ -133,17 +130,17 @@ public class jufin_jurnal extends javax.swing.JFrame {
         }
     }
     
-    public void updateData(int transaction_id, String category, int date, double amount, String desc) {
+    public void updateData(Object transaction_id, Object category, Object date, Object amount, Object desc) {
         try {
             Connection DB = DBConnect.getConnect();
             String QUERY = "UPDATE transactions SET journal_id = ?, category = ?, date = ?, amount = ?, description = ? WHERE transaction_id = ?";
             PreparedStatement preparePush = DB.prepareStatement(QUERY);
             
-            preparePush.setInt(1, JOURNAL_ID);
-            preparePush.setString(2, category);
-            preparePush.setInt(3, date);
-            preparePush.setDouble(4, amount);
-            preparePush.setString(5, desc);
+            preparePush.setObject(1, JOURNAL_ID);
+            preparePush.setObject(2, category);
+            preparePush.setObject(3, date);
+            preparePush.setObject(4, amount);
+            preparePush.setObject(5, desc);
             
             preparePush.executeUpdate();
             preparePush.close();
@@ -152,13 +149,23 @@ public class jufin_jurnal extends javax.swing.JFrame {
         }
     }
     
-    public void deleteData(int transaction_id) {
+    public void deleteData(Object transaction_id) {
         try {
             Connection DB = DBConnect.getConnect();
-            String QUERY = "DELETE FROM transactions WHERE transaction_id = ?";
-            PreparedStatement PSTMT = DB.prepareStatement(QUERY);
+            String FIND = "SELECT * FROM transactions WHERE transaction_id = ?";
+            PreparedStatement PSTMT = DB.prepareStatement(FIND);
+            PSTMT.setObject(1, transaction_id);
+            ResultSet RS = PSTMT.executeQuery();
             
-            PSTMT.setInt(1, transaction_id);
+            if (!RS.next()) {
+                return;
+            }
+            
+            RS.close();
+            String QUERY = "DELETE FROM transactions WHERE transaction_id = ?";
+            PSTMT = DB.prepareStatement(QUERY);
+            
+            PSTMT.setObject(1, transaction_id);
             PSTMT.executeUpdate();
             PSTMT.close();
         } catch (SQLException err) {
@@ -181,24 +188,31 @@ public class jufin_jurnal extends javax.swing.JFrame {
         btnAdd = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnPrint = new javax.swing.JButton();
-        btnSave = new javax.swing.JButton();
         jurnalDesc = new javax.swing.JLabel();
+        fieldNilai = new javax.swing.JTextField();
+        comboKategori = new javax.swing.JComboBox<>();
+        spinDate = new javax.swing.JSpinner();
+        fieldDesc = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jurnalTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null}
+                {null, null, null, null, null}
             },
             new String [] {
-                "Tanggal", "Kategori", "Ref", "Debit", "Kredit", "Deskripsi"
+                "Tanggal", "Kategori", "Ref", "Nilai", "Deskripsi"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Object.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                true, true, false, true, true, true
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -226,11 +240,6 @@ public class jufin_jurnal extends javax.swing.JFrame {
         });
 
         btnDelete.setText("Hapus");
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
 
         btnPrint.setText("Cetak");
         btnPrint.addActionListener(new java.awt.event.ActionListener() {
@@ -239,17 +248,33 @@ public class jufin_jurnal extends javax.swing.JFrame {
             }
         });
 
-        btnSave.setText("Simpan");
-        btnSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSaveActionPerformed(evt);
-            }
-        });
-
         jurnalDesc.setFont(new java.awt.Font("Cascadia Mono", 0, 16)); // NOI18N
         jurnalDesc.setText("Nothing");
         jurnalDesc.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jurnalDesc.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        comboKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Gaji", "Grosir", "Lain", "Tagihan" }));
+        comboKategori.setToolTipText("");
+
+        spinDate.setModel(new javax.swing.SpinnerNumberModel(1, 1, 30, 1));
+
+        fieldDesc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fieldDescActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
+        jLabel1.setText("Tanggal");
+
+        jLabel2.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
+        jLabel2.setText("Kategori");
+
+        jLabel3.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
+        jLabel3.setText("Nilai");
+
+        jLabel4.setFont(new java.awt.Font("Cascadia Mono", 0, 12)); // NOI18N
+        jLabel4.setText("Deskripsi");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -261,18 +286,35 @@ public class jufin_jurnal extends javax.swing.JFrame {
                     .addComponent(jurnalDesc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 748, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnAdd)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnDelete)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnSave)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnPrint))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jurnalTitle)
                             .addComponent(jurnalMonth))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(spinDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comboKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(fieldNilai, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(fieldDesc)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnAdd)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnDelete)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnPrint))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -283,15 +325,24 @@ public class jufin_jurnal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jurnalMonth)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jurnalDesc, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jurnalDesc, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd)
                     .addComponent(btnDelete)
                     .addComponent(btnPrint)
-                    .addComponent(btnSave))
+                    .addComponent(fieldNilai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(comboKategori, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(spinDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fieldDesc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(5, 5, 5)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -302,137 +353,46 @@ public class jufin_jurnal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnPrintActionPerformed
 
-    // Todo:
-    // * Membuat data baru dengan insertData()
-    // * Jika mengubah nilai data, update data yang diganti menggunakan updateData() berdasarkan Ref dari data
-    // * Menghapus data dari database jika referensi data tidak ada pada jurnal tapi ada pada database
-    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         try {
-            Connection DB = DBConnect.getConnect();
-            String qPull = "SELECT * FROM transactions";
-            Statement statePull = DB.createStatement();
-            ResultSet rsPull = statePull.executeQuery(qPull);
-            while(rsPull.next()) {
-                int db_transaction_id, db_journal_id, db_date;
-                String db_category, db_desc;
-                double db_amount;
-                
-                db_transaction_id = rsPull.getInt("transaction_id");
-                db_journal_id = rsPull.getInt("journal_id");
-                db_category = rsPull.getString("category");
-                db_date = rsPull.getInt("date");
-                db_amount = rsPull.getDouble("amount");
-                db_desc = rsPull.getString("description");
-                
-                int findMissing;
-                for (int row = 0; row < jurnalTable.getRowCount(); row++) {
-                    int tb_transaction_id, tb_date;
-                    String tb_category, tb_desc;
-                    double tb_amount = 0;
-                    
-                    tb_date = (int) jurnalTable.getValueAt(row, 0);
-                    tb_category = (String) jurnalTable.getValueAt(row, 1);
-                    tb_transaction_id = (int) jurnalTable.getValueAt(row, 2);
-
-                    // Error handling
-                    if (jurnalTable.getValueAt(row, 1) == null) {
-                        throw new Exception ("Error: kategori tidak boleh kosong");
-                    }
-                    
-                    if (jurnalTable.getValueAt(row, 1) == kategori.list[0]) {
-                        if (jurnalTable.getValueAt(row, 3) == null) {
-                            throw new Exception("Error: debit dari kategori ini tidak boleh kosong");
-                        }
-                        
-                        if (jurnalTable.getValueAt(row, 4) != null && (double) jurnalTable.getValueAt(row, 4) > 0) {
-                            throw new Exception("Error: jangan menambahkan kredit untuk kategori debit");
-                        }
-                        
-                        if ((double) jurnalTable.getValueAt(row, 3) < 0) {
-                            throw new Exception("Error: debit tidak boleh < 0");
-                        }
-                        
-                        tb_amount = (double) jurnalTable.getValueAt(row, 3);
-                    } else {
-                        if (jurnalTable.getValueAt(row, 4) == null) {
-                            throw new Exception("Error: kredit dari kategori ini tidak boleh kosong");
-                        }
-                        
-                        if (jurnalTable.getValueAt(row, 3) != null && (double) jurnalTable.getValueAt(row, 3) > 0) {
-                            throw new Exception("Error: jangan menambahkan debit untuk kategori kredit");
-                        }
-                        
-                        if ((double) jurnalTable.getValueAt(row, 4) < 0) {
-                            throw new Exception("Error: kredit tidak boleh < 0");
-                        }
-                        
-                        tb_amount = (double) jurnalTable.getValueAt(row, 4);
-                    }
-                    
-                    System.out.println("Can't run here");
-                    
-                    tb_desc = (String) jurnalTable.getValueAt(row, 5);
-                    
-                    
-                    // Update jika sudah ada tapi data berubah
-                    if (tb_transaction_id == db_transaction_id) {
-                        updateData(tb_transaction_id, tb_category, tb_date, tb_amount, tb_desc);
-                    }
-                    
-                    // Hapus dari DB jika yang ada pada DB tidak ada pada tabel
-                    if (row == jurnalTable.getRowCount() && db_transaction_id != tb_transaction_id) {
-                        deleteData(db_transaction_id);
-                    }
-                    
-                    // Tambahkan jika yang ada pada tabel tidak ada pada DB
-                    PreparedStatement tempState = DB.prepareStatement("SELECT * FROM transactions WHERE transaction_id = ?");
-                    tempState.setInt(1, tb_transaction_id);
-                    ResultSet tempRS = tempState.executeQuery();
-                    if (!tempRS.next()) {
-                        insertData(tb_category, tb_date, tb_amount, tb_desc);
-                    }
-                    
-
-
-                    tempState.close();
-                    tempRS.close();
-                }
+            // Mengecek jika fieldNilai kosong, jika kosong throw error lalu return
+            if (fieldNilai.getText() == null || fieldNilai.getText().trim().isEmpty()) {
+                throw new Exception("Error: nilai tidak boleh kosong");
             }
+
+            // Memasukkan nilai ke tabel
+            Object[] tbObj = {spinDate.getValue(), comboKategori.getSelectedItem(), JOURNAL_ID, fieldNilai.getText(), fieldDesc.getText()};
+            dbModel.addRow(tbObj);
             
-            statePull.close();
-            rsPull.close();
-        } catch (SQLException err) {
-            System.err.println("Error: mencoba menyimpan data");
+            // Memasukkan nilai ke database
+            
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
             return;
         }
-    }//GEN-LAST:event_btnSaveActionPerformed
-
-    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        dbModel.addRow(new Object[]{null, null, null, null, null, null});
     }//GEN-LAST:event_btnAddActionPerformed
 
-    // Fungsi tombol hapus: menghapus baris dari jurnalTable
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        int selectedRow = jurnalTable.getSelectedRow();
-        if (selectedRow == -1) {
-            return;
-        }
-        
-        dbModel.removeRow(selectedRow);
-    }//GEN-LAST:event_btnDeleteActionPerformed
+    private void fieldDescActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldDescActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fieldDescActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnPrint;
-    private javax.swing.JButton btnSave;
+    private javax.swing.JComboBox<String> comboKategori;
+    private javax.swing.JTextField fieldDesc;
+    private javax.swing.JTextField fieldNilai;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel jurnalDesc;
     private javax.swing.JLabel jurnalMonth;
     private javax.swing.JTable jurnalTable;
     private javax.swing.JLabel jurnalTitle;
+    private javax.swing.JSpinner spinDate;
     // End of variables declaration//GEN-END:variables
 }
