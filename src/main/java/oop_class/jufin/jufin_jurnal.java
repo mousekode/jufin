@@ -15,6 +15,14 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.DriverManager;
+
+// Java Jasper
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.view.JasperViewer;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  *
@@ -393,7 +401,29 @@ public class jufin_jurnal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
-        // TODO add your handling code here:
+    // Force Jasper to use the JVM's default font mapping
+    System.setProperty("net.sf.jasperreports.extension.registry.factory.fonts", "net.sf.jasperreports.engine.fonts.SimpleFontExtensionsRegistryFactory");
+    try {
+        Connection DB = DBConnect.getConnect();
+        // 1. Path to your compiled report file (.jasper)
+        String reportPath = "C:\\Users\\Akbar\\OneDrive\\Documents\\NetBeansProjects\\jufin\\src\\main\\java\\oop_class\\jufin\\jasper\\JufinReport.jasper";
+
+        // 2. The ID of the journal you want to print
+        int journalID = JOURNAL_ID; // This usually comes from your JTable or TextField
+
+        // 3. Put the ID into the Parameter Map
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("SELECTED_JOURNAL_ID", journalID);
+
+        // 4. Fill the report with data
+        JasperPrint jp = JasperFillManager.fillReport(reportPath, parameters, DB);
+
+        // 5. Show the report in a popup window
+        JasperViewer.viewReport(jp, false); 
+
+    } catch (JRException e) {
+        e.printStackTrace();
+}
     }//GEN-LAST:event_btnPrintActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
