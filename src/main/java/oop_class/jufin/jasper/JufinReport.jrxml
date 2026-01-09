@@ -1,0 +1,80 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="JufinReport" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1f0a9fd1-cb6f-4791-9c5a-c9bd59612c4b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="JufinAdapter"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="SELECTED_JOURNAL_ID" class="java.lang.Integer">
+		<description><![CDATA[ID of the Journal selected]]></description>
+	</parameter>
+	<query language="sql"><![CDATA[SELECT * FROM view_transaction_details 
+WHERE journal_id = $P{SELECTED_JOURNAL_ID}
+ORDER BY view_transaction_details.date ASC
+]]></query>
+	<field name="date" class="java.lang.Integer">
+		<description><![CDATA[Tanggal dari transaksi]]></description>
+	</field>
+	<field name="category" class="java.lang.String">
+		<description><![CDATA[Kategori dari transaksi]]></description>
+	</field>
+	<field name="amount" class="java.lang.Double">
+		<description><![CDATA[Nilai dari transaksi]]></description>
+	</field>
+	<field name="description" class="java.lang.String">
+		<description><![CDATA[Deskripsi dari transaksi]]></description>
+	</field>
+	<field name="journal_name" class="java.lang.String">
+		<description><![CDATA[Nama dari jurnal]]></description>
+	</field>
+	<field name="created_in" class="java.lang.String">
+		<description><![CDATA[Bulan pembuatan jurnal]]></description>
+	</field>
+	<background splitType="Stretch"/>
+	<title height="96" splitType="Stretch">
+		<element kind="staticText" uuid="9c81f5e3-ab59-4975-8799-cd54a79b0877" mode="Transparent" x="10" y="0" width="550" height="80" markup="html" fontName="DejaVu Sans" fontSize="42.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[JUFIN REPORT]]></text>
+		</element>
+	</title>
+	<pageHeader height="60" splitType="Stretch">
+		<element kind="textField" uuid="6b8a73f3-f96c-42b0-b148-087e6c690107" x="0" y="0" width="280" height="30" fontName="DejaVu Sans" fontSize="20.0" bold="true">
+			<expression><![CDATA[$F{journal_name} + ","]]></expression>
+		</element>
+		<element kind="textField" uuid="85fa3b15-8f6c-401d-94f8-9364a5a7a0fa" x="0" y="30" width="280" height="30" fontName="DejaVu Sans" fontSize="18.0" bold="true">
+			<expression><![CDATA[$F{created_in}]]></expression>
+		</element>
+	</pageHeader>
+	<columnHeader height="33" splitType="Stretch">
+		<element kind="staticText" uuid="f28225e4-5aa0-4a4d-81e2-cd916d189295" x="0" y="0" width="70" height="30" fontName="DejaVu Sans" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Tanggal]]></text>
+		</element>
+		<element kind="staticText" uuid="465d780d-9439-4c3d-98d4-a5352b3cec1a" x="70" y="0" width="140" height="30" fontName="DejaVu Sans" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Kategori]]></text>
+		</element>
+		<element kind="staticText" uuid="2cfc53d1-0f39-46b4-89da-07b1c993baac" x="210" y="0" width="160" height="30" fontName="DejaVu Sans" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Nilai]]></text>
+		</element>
+		<element kind="staticText" uuid="2baeaf27-f744-4c8b-a067-6dc0bf40338b" x="370" y="0" width="205" height="30" fontName="DejaVu Sans" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Deskripsi]]></text>
+		</element>
+		<element kind="line" uuid="872f12cd-a7a5-482a-b3c1-45ac27a30776" x="-3" y="30" width="561" height="1">
+			<pen lineWidth="5.0"/>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<element kind="textField" uuid="9a3c3015-474c-4510-8834-c6e240e6c726" x="0" y="0" width="70" height="20" fontName="DejaVu Sans" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{date}]]></expression>
+			</element>
+			<element kind="textField" uuid="e8cd8e9b-a64e-4b2f-bb93-02880533c2b4" x="70" y="0" width="140" height="20" fontName="DejaVu Sans" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{category}]]></expression>
+			</element>
+			<element kind="textField" uuid="a2220959-433a-46f3-a570-f5a48ed7cdba" x="210" y="0" width="160" height="20" fontName="DejaVu Sans" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{amount}]]></expression>
+			</element>
+			<element kind="textField" uuid="f8229c2e-0084-439c-8420-d17ad974c7a2" x="370" y="0" width="205" height="20" fontName="DejaVu Sans" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{description}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<columnFooter height="45" splitType="Stretch"/>
+	<pageFooter height="54" splitType="Stretch"/>
+	<summary height="42" splitType="Stretch"/>
+</jasperReport>
